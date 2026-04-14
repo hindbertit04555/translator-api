@@ -4,6 +4,8 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM payara/server-full:6.2024.6
-COPY --from=build /app/target/translator-api.war $DEPLOY_DIR
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/target/translator-api.jar app.jar
 EXPOSE 8080
+CMD ["java", "-Xmx400m", "-jar", "app.jar"]
