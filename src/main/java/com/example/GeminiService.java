@@ -13,20 +13,26 @@ public class GeminiService {
     private static final String GEMINI_URL;
 
     static {
-        String key = "";
-        try {
-            Properties props = new Properties();
-            InputStream is = GeminiService.class
-                    .getClassLoader()
-                    .getResourceAsStream("config.properties");
-            if (is != null) {
-                props.load(is);
-                key = props.getProperty("gemini.api.key", "");
+        // First try environment variable (for cloud deployment)
+        String key = System.getenv("GEMINI_API_KEY");
+
+        // If not found, fall back to config.properties (for local)
+        if (key == null || key.isBlank()) {
+            try {
+                Properties props = new Properties();
+                InputStream is = GeminiService.class
+                        .getClassLoader()
+                        .getResourceAsStream("config.properties");
+                if (is != null) {
+                    props.load(is);
+                    key = props.getProperty("gemini.api.key", "");
+                }
+            } catch (Exception e) {
+                key = "";
             }
-        } catch (Exception e) {
-            key = "";
         }
-        API_KEY = key;
+
+        API_KEY = key != null ? key : "";
         GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
     }
 
